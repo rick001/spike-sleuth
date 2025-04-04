@@ -173,14 +173,19 @@ monitor() {
     # Initial cleanup of old logs
     cleanup_old_logs
 
-    echo "Starting spike-sleuth monitoring..."
-    echo "Configuration:"
-    echo "- Read threshold: $READ_THRESHOLD MB/s"
-    echo "- Log file: $LOG_FILE"
-    echo "- Check interval: $INTERVAL seconds"
-    echo "- Minimum process threshold: $MIN_PROCESS_THRESHOLD MB/s"
-    echo "- Max log size: $((MAX_LOG_SIZE/1024/1024))MB"
-    echo "- Log retention: $LOG_RETENTION days"
+    # Log initial setup confirmation
+    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$TIMESTAMP] ✅ Spike Sleuth setup complete. Monitoring started." >> "$LOG_FILE"
+    echo "----------------------------------------" >> "$LOG_FILE"
+    echo "Configuration:" >> "$LOG_FILE"
+    echo "- Read threshold: $READ_THRESHOLD MB/s" >> "$LOG_FILE"
+    echo "- Log file: $LOG_FILE" >> "$LOG_FILE"
+    echo "- Check interval: $INTERVAL seconds" >> "$LOG_FILE"
+    echo "- Minimum process threshold: $MIN_PROCESS_THRESHOLD MB/s" >> "$LOG_FILE"
+    echo "- Max log size: $((MAX_LOG_SIZE/1024/1024))MB" >> "$LOG_FILE"
+    echo "- Log retention: $LOG_RETENTION days" >> "$LOG_FILE"
+    echo "==========================================" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
 
     while true; do
         # Get disk read rate in MB/s
