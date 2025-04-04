@@ -47,7 +47,12 @@ git clone https://github.com/rick001/spike-sleuth.git
 cd spike-sleuth
 ```
 
-3. Install the service:
+3. Make the script executable:
+```bash
+chmod +x spike-sleuth.sh
+```
+
+4. Install the service:
 ```bash
 sudo ./spike-sleuth.sh install
 ```
