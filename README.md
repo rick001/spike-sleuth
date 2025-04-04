@@ -1,6 +1,6 @@
 # Spike Sleuth
 
-A real-time disk I/O monitoring tool that detects and logs high disk read activity spikes on Linux systems.
+A real-time disk I/O monitoring tool that detects and logs high disk read activity spikes on Linux systems. Runs as a systemd service for reliable background monitoring.
 
 ## Overview
 
@@ -11,9 +11,18 @@ Spike Sleuth continuously monitors disk I/O activity and automatically logs deta
 - Monitoring disk-intensive applications
 - Debugging system slowdowns
 
+## Features
+
+- 🚀 Runs as a systemd service for reliable background operation
+- 📊 Configurable monitoring thresholds and intervals
+- 📝 Automatic log rotation and retention
+- 🔍 Detailed process and file information during spikes
+- 🔄 Automatic service recovery
+- ⚙️ Easy installation and management
+
 ## Prerequisites
 
-- Linux operating system
+- Linux operating system with systemd
 - `iostat` (part of sysstat package)
 - `iotop` (requires root privileges)
 - `lsof` (for file monitoring)
@@ -38,35 +47,68 @@ git clone https://github.com/rick001/spike-sleuth.git
 cd spike-sleuth
 ```
 
-3. Make the script executable:
+3. Install the service:
 ```bash
-chmod +x spike-sleuth.sh
+sudo ./spike-sleuth.sh install
 ```
 
-## Usage
+The script will be installed to `/usr/local/bin` and configured as a systemd service.
 
-Run the script with root privileges:
+## Configuration
+
+You can customize the service by setting environment variables before installation:
 
 ```bash
-sudo ./spike-sleuth.sh
+READ_THRESHOLD=1000 \
+INTERVAL=10 \
+LOG_FILE="/path/to/log" \
+MIN_PROCESS_THRESHOLD=200 \
+MAX_LOG_SIZE=5242880 \
+LOG_RETENTION=14 \
+sudo ./spike-sleuth.sh install
 ```
 
-The script will run continuously in the background, monitoring disk I/O activity. When a spike is detected, it will automatically log information to `/var/log/disk_io_spike.log`.
-
-### Configuration
-
-You can modify the following parameters in the script:
+### Available Configuration Options
 
 - `READ_THRESHOLD`: Disk read threshold in MB/s (default: 5000 MB/s = 5GB/s)
 - `LOG_FILE`: Path to the log file (default: `/var/log/disk_io_spike.log`)
 - `INTERVAL`: Monitoring interval in seconds (default: 5 seconds)
+- `MIN_PROCESS_THRESHOLD`: Minimum I/O rate to log a process in MB/s (default: 500 MB/s)
+- `MAX_LOG_SIZE`: Maximum log file size in bytes (default: 10MB)
+- `LOG_RETENTION`: Number of days to keep old log files (default: 7 days)
+
+## Usage
+
+### Service Management
+
+```bash
+# Start the service
+sudo ./spike-sleuth.sh start
+
+# Stop the service
+sudo ./spike-sleuth.sh stop
+
+# Check service status
+sudo ./spike-sleuth.sh status
+
+# Uninstall the service
+sudo ./spike-sleuth.sh uninstall
+```
+
+### Direct Usage (without service)
+
+For testing or temporary monitoring, you can run the script directly:
+
+```bash
+sudo ./spike-sleuth.sh
+```
 
 ## Sample Output
 
 When a disk I/O spike is detected, the log file will contain entries similar to this:
 
 ```
-[2024-03-20 14:30:45] 🚨 Disk I/O Spike Detected (PID: 1234, > 5000 MB/s) 🚨
+[2024-03-20 14:30:45] 🚨 Disk I/O Spike Detected (PID: 1234, Rate: 1234.5 MB/s) 🚨
 ----------------------------------------
 🔹 Process details (iotop):
 1234  user1  123.4G/s  /usr/bin/some-process
@@ -76,24 +118,37 @@ n1234 /path/to/file2
 ==========================================
 ```
 
-## Log File Information
+Note: The emoji icons (🚨, 🔹) will be displayed in the log file but not in the console output.
 
-The log file contains:
-- Timestamp of the spike
-- Process ID (PID) causing the spike
-- I/O rate during the spike
-- Process details from iotop
-- List of open files for the process
-- Additional system information
+## Log Management
+
+- Logs are automatically rotated when they exceed the configured size
+- Old log files are automatically cleaned up based on the retention period
+- Log files are stored with timestamps for historical tracking
 
 ## Troubleshooting
 
 If you encounter issues:
 
-1. Ensure all required packages are installed
-2. Verify you have root privileges
-3. Check if the log directory exists and is writable
-4. Monitor system resources to ensure the script isn't causing performance impact
+1. Check service status:
+```bash
+sudo ./spike-sleuth.sh status
+```
+
+2. View system logs:
+```bash
+journalctl -u spike-sleuth
+```
+
+3. Common issues:
+   - Ensure all required packages are installed
+   - Verify you have root privileges
+   - Check if the log directory exists and is writable
+   - Monitor system resources to ensure the service isn't causing performance impact
+
+4. Debug mode:
+   - Set `DEBUG=true` before installation to enable detailed logging
+   - Run the script directly with `DEBUG=true` for testing
 
 ## License
 
